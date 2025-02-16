@@ -1,16 +1,26 @@
 <!DOCTYPE html>
-<html class="home" lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mouse Activity</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-<body>
-    <h1>How does body temperature and activity scores for different mice differ over the 14 day period?</h1>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Mouse Temperature/Activity Chart</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="controls">
+      <label for="mouseDropdown">Select Mouse: </label>
+      <select id="mouseDropdown"></select>
+      
+      <!-- Toggle buttons for Temperature vs. Activity -->
+      <button id="temp-button" data-measure="temp" class="selected-button">Temperature</button>
+      <button id="act-button" data-measure="act">Activity</button>
+    </div>
     
+    <div class="chart-container">
+      <svg id="chart"></svg>
+    </div>
+    
+    <!-- D3 Library -->
     <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="global.js" type="module"></script>
-</body>
+    <script src="global.js"></script>
+  </body>
 </html>
