@@ -1,7 +1,8 @@
 // Global variables for the selected mouse, measure, and tooltip timeout
 let data = [];
-let selectedMouse = "f1";      // Default: first mouse
+let selectedMouse = "select";      // Default: first mouse
 let selectedMeasure = "temp";  // Default: temperature
+let selectedTime = "all";       // Default: all times
 let dailyMeans = [];
 let tooltipTimeout; // Global variable to manage tooltip hide delay
 
@@ -15,6 +16,7 @@ async function loadData() {
       // Use the row index as a unique minute identifier (if needed)
       Minute: index,
       Day: +row.Day, // Assuming CSV has a Day column
+      Night: +row.Night,
 
       // Female Temperatures
       f1_temp: +row.f1_temp, f2_temp: +row.f2_temp, f3_temp: +row.f3_temp,
@@ -57,6 +59,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   // When the dropdown value changes, update the selected mouse and replot
   d3.select("#mouse-select").on("change", function () {
     selectedMouse = d3.select(this).property("value");
+    d3.select("#male-button").classed("selected-button", false);
+    d3.select("#female-button").classed("selected-button", false);
+    d3.select("#both-button").classed("selected-button", false);
     updateDailyMeans();
     plotData();
   });
@@ -78,20 +83,108 @@ document.addEventListener("DOMContentLoaded", async () => {
     updateDailyMeans();
     plotData();
   });
+
+  // Toggle button for Male
+  d3.select("#male-button").on("click", function () {
+    const isSelected = d3.select(this).classed("selected-button");
+    d3.select("#male-button").classed("selected-button", !isSelected);
+    d3.select("#female-button").classed("selected-button", false);
+    d3.select("#both-button").classed("selected-button", false);
+    selectedMouse = isSelected ? "select" : "male";
+    d3.select("#mouse-select").property("value", "select");
+    updateDailyMeans();
+    plotData();
+  });
+
+  // Toggle button for Female
+  d3.select("#female-button").on("click", function () {
+    const isSelected = d3.select(this).classed("selected-button");
+    d3.select("#female-button").classed("selected-button", !isSelected);
+    d3.select("#male-button").classed("selected-button", false);
+    d3.select("#both-button").classed("selected-button", false);
+    selectedMouse = isSelected ? "select" : "female";
+    d3.select("#mouse-select").property("value", "select");
+    updateDailyMeans();
+    plotData();
+  });
+
+  // Toggle button for Both
+  d3.select("#both-button").on("click", function () {
+    const isSelected = d3.select(this).classed("selected-button");
+    d3.select("#both-button").classed("selected-button", !isSelected);
+    d3.select("#male-button").classed("selected-button", false);
+    d3.select("#female-button").classed("selected-button", false);
+    selectedMouse = isSelected ? "select" : "both";
+    d3.select("#mouse-select").property("value", "select");
+    updateDailyMeans();
+    plotData();
+  });
+
+  // Toggle button for Day
+  d3.select("#day-button").on("click", function () {
+    const isSelected = d3.select(this).classed("selected-button");
+    d3.select("#day-button").classed("selected-button", !isSelected);
+    d3.select("#night-button").classed("selected-button", false);
+    selectedTime = isSelected ? "all" : "day";
+    updateDailyMeans();
+    plotData();
+  });
+
+  // Toggle button for Night
+  d3.select("#night-button").on("click", function () {
+    const isSelected = d3.select(this).classed("selected-button");
+    d3.select("#night-button").classed("selected-button", !isSelected);
+    d3.select("#day-button").classed("selected-button", false);
+    selectedTime = isSelected ? "all" : "night";
+    updateDailyMeans();
+    plotData();
+  });
 });
 
 // Update daily means based on selected mouse and measure.
 // Now also computing the min and max for each day.
 function updateDailyMeans() {
   dailyMeans = [];
-  const groupedData = d3.group(data, (d) => d.Day);
-  groupedData.forEach((values, key) => {
-    const columnName = `${selectedMouse}_${selectedMeasure}`;
-    const meanValue = d3.mean(values, (d) => d[columnName]);
-    const minValue = d3.min(values, (d) => d[columnName]);
-    const maxValue = d3.max(values, (d) => d[columnName]);
-    dailyMeans.push({ Day: key, Mean: meanValue, Min: minValue, Max: maxValue });
+  if (selectedMouse === "select") {
+    return;
+  }
+
+  const filteredData = data.filter(d => {
+    if (selectedTime === "day") {
+      return !d.Night;
+    }
+    return true;
   });
+
+  const groupedData = d3.group(filteredData, (d) => d.Day);
+
+  if (selectedMouse === "female" || selectedMouse === "male" || selectedMouse === "both") {
+    const genderPrefixes = selectedMouse === "both" ? ["f", "m"] : [selectedMouse === "female" ? "f" : "m"];
+    groupedData.forEach((values, key) => {
+      const meanValues = [];
+      genderPrefixes.forEach((prefix) => {
+        for (let i = 1; i <= 13; i++) {
+          const columnName = `${prefix}${i}_${selectedMeasure}`;
+          const meanValue = d3.mean(values, (d) => d[columnName]);
+          if (!isNaN(meanValue)) {
+            meanValues.push(meanValue);
+          }
+        }
+      });
+      const overallMean = d3.mean(meanValues);
+      const overallMin = d3.min(meanValues);
+      const overallMax = d3.max(meanValues);
+      dailyMeans.push({ Day: key, Mean: overallMean, Min: overallMin, Max: overallMax });
+    });
+  } else {
+    groupedData.forEach((values, key) => {
+      const columnName = `${selectedMouse}_${selectedMeasure}`;
+      const meanValue = d3.mean(values, (d) => d[columnName]);
+      const minValue = d3.min(values, (d) => d[columnName]);
+      const maxValue = d3.max(values, (d) => d[columnName]);
+      dailyMeans.push({ Day: key, Mean: meanValue, Min: minValue, Max: maxValue });
+    });
+  }
 }
 
 // Plot the chart using D3 with smooth transitions.
@@ -133,7 +226,6 @@ function plotData() {
   // Update scales.
   const x = d3.scaleLinear().domain([0, 14]).range([0, usableArea.width]);
   // Ensure y-axis always starts at 0. The max is the maximum of the daily Max values.
-//   const yMax = d3.max(dailyMeans, (d) => d.Max);
   const y = d3.scaleLinear().domain([0, 55]).nice().range([usableArea.height, 0]);
 
   // Update x-axis.
@@ -202,6 +294,11 @@ function plotData() {
     .duration(500)
     .attr("r", 0)
     .remove();
+
+  // If the dailyMeans array is empty, do not plot any dots.
+  if (dailyMeans.length === 0) {
+    return;
+  }
 
   // UPDATE existing elements.
   dots

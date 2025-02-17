@@ -20,11 +20,10 @@
     <div class="container">
       <!-- Sidebar: controls on the left -->
       <div class="sidebar">
-        <label for="mouse-select" class="mouse-select-label">
-          Select Mouse ID:
-        </label>
+        <label for="mouse-select" class="mouse-select-label">Mouse ID:</label>
         <!-- The option values are now just the mouse ID (e.g., "f1") -->
         <select id="mouse-select">
+          <option value="select">Make a selection</option>
           <option value="f1">f1</option>
           <option value="f2">f2</option>
           <option value="f3">f3</option>
@@ -60,6 +59,13 @@
             Temperature
           </button>
           <button id="act-button" data-measure="act">Activity</button>
+          <!-- Toggle buttons for Female vs. Male -->
+          <button id="female-button">Female</button>
+          <button id="male-button">Male</button>
+          <button id="both-button">Both</button>
+          <!-- Toggle buttons for Day vs. Night -->
+          <button id="day-button">Day</button>
+          <button id="night-button">Night</button>
         </div>
       </div>
 
