@@ -11,6 +11,10 @@ body {
     accent-color: var(--color-accent);
 }
 
+h1 {
+    font-size: 130%;
+}
+
 .tooltip {
     position: fixed;
 }
@@ -26,7 +30,8 @@ circle:hover {
 }
 
 .gridlines {
-    color: #eaeaea;
+    stroke: #ddd;
+    stroke-width: 0.3;
 }
   
 dl.info {
@@ -73,18 +78,33 @@ dl.info[hidden]:not(:hover, :focus-within) {
 
 /* Sidebar for controls on the left */
 .sidebar {
-    flex: 0 0 250px;       /* Fixed width for controls */
+    flex: 0 0 200px;       /* Fixed width for controls */
     text-align: left;      /* Left-align the controls */
 }
 
 /* Style for the mouse select label and select element */
 .mouse-select-label {
+    font-family: inherit;   
     display: block;
     margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 1rem;
+    color: #333;
+    line-height: 1.5; /* Adjust if needed */
+    vertical-align: middle;
+}
+
+.control-group h3,
+.mouse-select-label {
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
 }
 
 select {
-    width: 100%;
+    width: 80%;
     padding: 6px;
     margin-bottom: 15px;
 }
@@ -99,13 +119,36 @@ select {
 
 /* Button styling */
 button {
-    padding: 8px 12px;
-    width: 100%;
+    padding: 4px 8px;
+    width: 80%;
     border: none;
     background-color: #ddd;
     color: #333;
     cursor: pointer;
     white-space: nowrap;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* Add spacing between buttons within each control group */
+.control-group button:not(:last-child) {
+    margin-bottom: 3px;
+  }
+
+#male-button{
+    color: rgb(11, 164, 240);
+}
+
+#female-button{
+    color: rgb(224, 84, 108);
+}
+
+#day-button{
+    color: rgb(174, 134, 0);
+}
+
+#night-button{
+    color: rgb(45, 0, 180);
 }
 
 /* Styling for the selected button */
@@ -114,14 +157,102 @@ button {
     color: #ddd;
 }
 
+#male-button.selected-button{
+    background-color: rgb(11, 164, 240);
+    color: rgb(0, 0, 0);
+}
+
+#female-button.selected-button{
+    background-color: rgb(224, 84, 108);
+    color: rgb(0, 0, 0);
+}
+
+#day-button.selected-button{
+    background-color: rgb(221, 176, 29);
+    color: rgb(0, 0, 0);
+}
+
+#night-button.selected-button{
+    background-color: rgb(141, 139, 234);
+    color: rgb(0, 0, 0);
+}
+
 /* Chart container for the plot */
 .chart-container {
     flex: 1;                          /* Take remaining space */
     display: flex;
     justify-content: center;          /* Center horizontally */
     align-items: center;              /* Center vertically */
-    border: 1px solid #ccc;           /* Optional border */
+    border: none;           /* Optional border */
     padding: 10px;
     min-height: 500px;
     margin-top: 20px;                 /* Optional: additional top margin */
+    width: 100%;
+    height: 100%;
+}
+
+/* ------------------------------- */
+/* New controls container spacing  */
+/* ------------------------------- */
+.control-group {
+  margin-bottom: 20px;
+}
+
+/* ------------------------------- */
+/* Info icon & tooltip styles      */
+/* ------------------------------- */
+
+/* Update the info icon to vertically align with the text */
+.info-icon {
+  display: inline-block;
+  margin-left: 8px;
+  background-color: #ccc;
+  color: #000000;
+  font-size: 0.8rem;
+  line-height: 1;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  border-radius: 50%;
+  position: relative;
+  cursor: help;
+  vertical-align: middle; /* ensures the icon is centered relative to text */
+  top: -1px; /* Adjust this value until it lines up exactly */
+}
+
+/* Adjust the tooltip styling: increase font size and adjust vertical offset */
+.info-tooltip {
+  visibility: hidden;
+  opacity: 0;
+  width: 220px; /* adjust as needed */
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 5px 8px;
+  border-radius: 4px;
+  position: absolute;
+  bottom: 125%; /* positions tooltip above the icon */
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+  transition: opacity 0.3s;
+  font-size: 1rem; /* increased font size */
+}
+
+/* Tooltip arrow remains the same */
+.info-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%; /* at the bottom of the tooltip */
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+/* Show tooltip on hover */
+.info-icon:hover .info-tooltip {
+  visibility: visible;
+  opacity: 1;
 }

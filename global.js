@@ -16,7 +16,7 @@ async function loadData() {
       // Use the row index as a unique minute identifier (if needed)
       Minute: index,
       Day: +row.Day, // Assuming CSV has a Day column
-      Night: +row.Night,
+      Night: row.Night.toLowerCase() === "true",
 
       // Female Temperatures
       f1_temp: +row.f1_temp, f2_temp: +row.f2_temp, f3_temp: +row.f3_temp,
@@ -151,10 +151,13 @@ function updateDailyMeans() {
 
   const filteredData = data.filter(d => {
     if (selectedTime === "day") {
-      return !d.Night;
+      return !d.Night;  // keep day rows (Night is false)
+    } else if (selectedTime === "night") {
+      return d.Night;   // keep night rows (Night is true)
     }
-    return true;
+    return true;        // "all" selected: do not filter
   });
+  
 
   const groupedData = d3.group(filteredData, (d) => d.Day);
 
@@ -189,9 +192,33 @@ function updateDailyMeans() {
 
 // Plot the chart using D3 with smooth transitions.
 function plotData() {
-  const width = 800;
-  const height = 500;
-  const margin = { top: 10, right: 10, bottom: 50, left: 60 };
+  const width = 1400;
+  const height = 800;
+  const margin = { top: 10, right: 10, bottom: 40, left: 40 };
+
+  // let chartBackground;
+  // if(selectedTime === "day"){
+  //   chartBackground = "rgba(255, 255, 200, 0.3)";
+
+  // } else if(selectedTime === "night"){
+  //   chartBackground = "rgba(230, 200, 250, 0.3)"
+  // } else {
+  //   chartBackground = "";
+  // }
+
+  // d3.select("#chart").style("background-color", chartBackground);
+
+
+  let pageBackground;
+  if (selectedTime === "day") {
+    pageBackground = "rgba(255, 255, 200, 0.3)";
+  } else if (selectedTime === "night") {
+    pageBackground = "rgba(230, 200, 250, 0.3)";
+  } else {
+    pageBackground = "";
+  }
+
+  d3.select("body").style("background-color", pageBackground);
 
   const usableArea = {
     top: margin.top,
@@ -235,31 +262,34 @@ function plotData() {
     .transition()
     .duration(500)
     .attr("transform", `translate(0,${usableArea.height})`)
-    .call(xAxis);
+    .call(xAxis)
+    .style("font-size", "16px");
 
   // X-axis label.
   chartSVG
     .select(".x-label")
     .attr("x", usableArea.width / 2)
-    .attr("y", usableArea.height + margin.bottom - 5)
+    .attr("y", usableArea.height + margin.bottom +15)
     .attr("text-anchor", "middle")
+    .style("font-size", "25px")  
     .text("Day Number");
 
   // Update y-axis.
   const yAxis = d3.axisLeft(y);
-  chartSVG.select(".y-axis").transition().duration(500).call(yAxis);
+  chartSVG.select(".y-axis").transition().duration(500).call(yAxis) .style("font-size", "16px");
 
   // Y-axis label.
   const yLabelText =
-    selectedMeasure === "temp"
-      ? "Body Temperature (Degrees Celsius)"
-      : "Activity Score";
+  selectedMeasure === "temp"
+    ? "Body Temperature (°C)"
+    : "Activity Score";
   chartSVG
     .select(".y-label")
     .attr("transform", "rotate(-90)")
     .attr("x", -usableArea.height / 2)
-    .attr("y", -margin.left + 15)
+    .attr("y", -margin.left -10)
     .attr("text-anchor", "middle")
+    .style("font-size", "25px")  
     .text(yLabelText);
 
   // Update gridlines.
@@ -269,7 +299,9 @@ function plotData() {
     .duration(500)
     .call(d3.axisLeft(y).tickFormat("").tickSize(-usableArea.width));
 
-  // Update the green trend line.
+
+  const trendColor = selectedMeasure === "temp" ? "red" : "green";
+    // Update the light blue trend line.
   const lineGenerator = d3
     .line()
     .x((d) => x(d.Day))
@@ -280,11 +312,27 @@ function plotData() {
     .transition()
     .duration(500)
     .attr("fill", "none")
-    .attr("stroke", "green")
+    .attr("stroke", trendColor)
     .attr("stroke-width", 2)
     .attr("d", lineGenerator(dailyMeans));
 
-  // Update dots using the enter-update-exit pattern.
+  let dotColor;
+  if (selectedMouse === "male"){
+    dotColor = "rgb(11, 164, 240)";
+  } else if (selectedMouse === "female"){
+    dotColor = "rgb(224, 84, 108)";
+  } else {
+    if (selectedMouse.startsWith("f")){
+      dotColor = "rgb(224, 84, 108)";
+    } else if (selectedMouse.startsWith("m")){
+      dotColor = "rgb(11, 164, 240)";
+    } else {
+      dotColor = "grey";
+    }
+  }
+  console.log("selectedMouse:", selectedMouse, "dotColor:", dotColor);
+  
+    // Update dots using the enter-update-exit pattern.
   const dots = chartSVG.select(".dots").selectAll("circle").data(dailyMeans, d => d.Day);
 
   // EXIT old elements.
@@ -304,6 +352,7 @@ function plotData() {
   dots
     .transition()
     .duration(500)
+    .attr("fill", dotColor)
     .attr("cx", (d) => x(d.Day))
     .attr("cy", (d) => y(d.Mean));
 
@@ -313,11 +362,10 @@ function plotData() {
     .append("circle")
     .attr("cx", (d) => x(d.Day))
     .attr("cy", (d) => y(d.Mean))
-    .attr("r", 0)
-    .attr("fill", "steelblue")
+    .attr("fill", dotColor)
     .style("fill-opacity", 0.7)
     .on("mouseenter", function (event, d) {
-      d3.select(this).transition().duration(200).attr("fill", "hotpink");
+      //d3.select(this).transition().duration(200).attr("fill", "hotpink");
       updateTooltipContent(d);
       updateTooltipVisibility(true);
       updateTooltipPosition(event);
@@ -326,14 +374,14 @@ function plotData() {
       updateTooltipPosition(event);
     })
     .on("mouseleave", function (event, d) {
-      d3.select(this).transition().duration(200).attr("fill", "steelblue");
+      //d3.select(this).transition().duration(200).attr("fill", "steelblue");
       tooltipTimeout = setTimeout(() => {
         updateTooltipVisibility(false);
       }, 200);
     })
     .transition()
     .duration(500)
-    .attr("r", 5);
+    .attr("r", 10);
 }
 
 // Update tooltip content to show day, mean, min, and max values.

@@ -2,7 +2,7 @@
 <html class="home" lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Mouse Activity</title>
     <link rel="stylesheet" href="style.css" />
     <link
@@ -12,15 +12,19 @@
   </head>
   <body>
     <h1>
-      🐭🐁 How does body temperature and activity scores for different mice differ
-      over the 14 day period? 🐭🐁
+      🐭 Visualizing Body Temperatures and Activity Scores of Mice over a 14-Day Study 🐭
     </h1>
 
     <!-- Parent container for sidebar and chart -->
     <div class="container">
       <!-- Sidebar: controls on the left -->
       <div class="sidebar">
-        <label for="mouse-select" class="mouse-select-label">Mouse ID:</label>
+        <label for="mouse-select" class="mouse-select-label">
+          Mouse ID
+          <span class="info-icon">i
+            <span class="info-tooltip">Select a mouse ID from the list</span>
+          </span>
+        </label>
         <!-- The option values are now just the mouse ID (e.g., "f1") -->
         <select id="mouse-select">
           <option value="select">Make a selection</option>
@@ -53,19 +57,44 @@
         </select>
 
         <div class="controls">
-          <!-- Toggle buttons for Temperature vs. Activity -->
-          <!-- Temperature is default -->
-          <button id="temp-button" data-measure="temp" class="selected-button">
-            Temperature
-          </button>
-          <button id="act-button" data-measure="act">Activity</button>
-          <!-- Toggle buttons for Female vs. Male -->
-          <button id="female-button">Female</button>
-          <button id="male-button">Male</button>
-          <button id="both-button">Both</button>
-          <!-- Toggle buttons for Day vs. Night -->
-          <button id="day-button">Day</button>
-          <button id="night-button">Night</button>
+          <!-- Measure controls -->
+          <div class="control-group measure-group">
+            <h3>
+              📏 Measure
+              <span class="info-icon">i
+                <span class="info-tooltip">Select Temperature or Activity measure</span>
+              </span>
+            </h3>
+            <button id="temp-button" data-measure="temp" class="selected-button">
+              🌡️ Temperature
+            </button>
+            <button id="act-button" data-measure="act">🏃‍♂️ Activity</button>
+          </div>
+          
+          <!-- Gender controls -->
+          <div class="control-group gender-group">
+            <h3>
+              ⚥ Gender Groups
+              <span class="info-icon">i
+                <span class="info-tooltip">Select a category below to view aggregate gender data</span>
+              </span>
+            </h3>
+            <button id="female-button">♀️ Female</button>
+            <button id="male-button">♂️ Male</button>
+            <button id="both-button">👫 Both</button>
+          </div>
+          
+          <!-- Time controls -->
+          <div class="control-group time-group">
+            <h3>
+              🕰️ Time
+              <span class="info-icon">i
+                <span class="info-tooltip">Filter the data displayed based on Day or Night</span>
+              </span>
+            </h3>
+            <button id="day-button">☀️ Day</button>
+            <button id="night-button">🌑 Night</button>
+          </div>
         </div>
       </div>
 
