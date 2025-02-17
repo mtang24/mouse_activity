@@ -10,7 +10,7 @@ let chartSVG = null;
 
 // Load CSV data from mouse.csv (located in the parent directory)
 async function loadData() {
-  data = await d3.csv("../mouse.csv", (row, index) => {
+  data = await d3.csv("mouse.csv", (row, index) => {
     return {
       // Use the row index as a unique minute identifier (if needed)
       Minute: index,
