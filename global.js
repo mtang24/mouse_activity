@@ -253,7 +253,7 @@ function plotData() {
   // Update scales.
   const x = d3.scaleLinear().domain([0, 14]).range([0, usableArea.width]);
   // Ensure y-axis always starts at 0. The max is the maximum of the daily Max values.
-  const y = d3.scaleLinear().domain([0, 55]).nice().range([usableArea.height, 0]);
+  const y = d3.scaleLinear().domain([0, 80]).nice().range([usableArea.height, 0]);
 
   // Update x-axis.
   const xAxis = d3.axisBottom(x).ticks(14);

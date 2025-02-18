@@ -15,6 +15,10 @@ h1 {
     font-size: 130%;
 }
 
+h4{
+    text-align: center;
+}
+
 .tooltip {
     position: fixed;
 }
@@ -84,14 +88,8 @@ dl.info[hidden]:not(:hover, :focus-within) {
 
 /* Style for the mouse select label and select element */
 .mouse-select-label {
-    font-family: inherit;   
     display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-    font-size: 1rem;
-    color: #333;
     line-height: 1.5; /* Adjust if needed */
-    vertical-align: middle;
 }
 
 .control-group h3,
